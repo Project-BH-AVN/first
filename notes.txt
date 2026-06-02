@@ -1,0 +1,2 @@
+1- string.replace( String s1 , String s2); replaces string , not character
+2- stringbuffer.insert(index,string) inserts string at same index and moves the other forward
