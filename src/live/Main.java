@@ -59,7 +59,8 @@ class Database
     Scanner in =new Scanner(System.in);
     ArrayList<Formula> database= new ArrayList<>();
     int lastIndex = database.size()-1;
-  
+    ArrayList<String> trigList1 = new ArrayList<>(Arrays.asList("sin", "cos", "tan", "cot", "sec", "cosec"));
+
     void add()
     {
         pl("Enter Expression:");
@@ -126,7 +127,29 @@ class Database
 
     private void generatelvl1Keywords(Formula ob)
     {
-        //code here
+        String terms[]=ob.expression.split("[+\\-=*/()^]");
+        for(String s:terms)
+        {
+            if(isNumeric(s) || s.length()<2 || s.equals("") || s.equals("x")  || s.equals("y") || s.equals("z"))
+            {
+                continue;
+            }
+            else if( s.length()>=2)                
+            {
+              for(String s1:trigList1)
+              {
+                  if(s.contains(s1))
+                  {
+                    ob.lvl1Keywords.add(s);
+                    break ; 
+                  }
+              }
+            }
+            else
+            {
+                continue;
+            }
+        }
     }
     private void generatelvl2Keywords(Formula ob)
     {
