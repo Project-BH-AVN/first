@@ -1,29 +1,15 @@
 package live;
 import java.util.*;
 import static utils.Base.*;
-/*Formula object:
-→ id : int
-→ expression : String
-→ type : String (identity / formula)
-→ category : String (pythagorean / double angle / etc)
-→ level1keywords: ArrayList (specific: sin²x, cos²x)
-→ level2keywords: ArrayList (broad: sin, cos, tan)
 
-The Formula object must store: id (int), 
-expression (String), type (String — identity or formula),
- category (String), level1keywords (dynamic list of specific keywords),
-  level2keywords (dynamic list of broad keywords).
-Check for: correct field types, constructor completeness,
- whether ArrayList is used over static arrays for keywords, 
- and whether the class is sufficient to support add/search/list/edit operations.*/
 class Formula
 {
+    Scanner in =new Scanner(System.in);
     int id;                    
     String expression;
     String type;
     String category;
-    ArrayList<String> lvl1Keywords;
-    ArrayList<String> lvl2Keywords;
+    ArrayList<String> key;
 
     Formula(int id,String ex, String type , String category )
     {
@@ -31,35 +17,53 @@ class Formula
         this.expression=ex;
         this.type=type;
         this.category=category;
-        lvl1Keywords=new ArrayList<>();
-        lvl2Keywords=new ArrayList<>();
-        
+        key=new ArrayList<>();
+
     }
 
-    void lvl1customkeywords()
-    {
-        // add custom keywords to lvl1keyword list 
+    void addKeywords()
+    { int count =1;
+
+        while(true)
+        {
+            pl("Enter Keyword "+count+":");count++;
+            String s=in.nextLine().trim().replace(" ","").toLowerCase();
+            if(s.isEmpty())
+                continue;
+            this.key.add(s);              
+            pl("1-Add more keyword\n2-Exit ");
+            if(in.nextInt()==1)
+            {
+                in.nextLine();
+                continue;
+            }
+            else
+            {  
+                return; 
+            }
+
+        }
     }
-
-    void plLvl1Keywords()
-    {
-        //print lvl 1 keywords
+    void plKeywords() {
+    p("Keyword - {");
+    for(int i = 0; i < key.size(); i++) {
+        if(i != key.size() - 1) {
+            p(key.get(i) + ", ");
+        } else {
+            p(key.get(i));
+        }
     }
+    pl("}");
+}
 
-    void plLvl2Keywords()
-    {
-        //print lvl 2 keywords
-    }
-// sin2x=2SinAcos A
-
-
+   
 }
 class Database 
 {
     Scanner in =new Scanner(System.in);
     ArrayList<Formula> database= new ArrayList<>();
+
     int lastIndex = database.size()-1;
-    ArrayList<String> trigList1 = new ArrayList<>(Arrays.asList("sin", "cos", "tan", "cot", "sec", "cosec"));
 
     void add()
     {
@@ -67,102 +71,97 @@ class Database
         String ex=in.nextLine().replace(" ","").toLowerCase();
         pl("Enter Type:");
         String ty=in.nextLine().replace(" ","").toLowerCase();
-         pl("Enter category:");
+        pl("Enter category:");
         String ca=in.nextLine().replace(" ","").toLowerCase();
         Formula ob=new Formula(lastIndex+1,ex,ty,ca);
         lastIndex++;
-        generatelvl1Keywords(ob);
-        generatelvl2Keywords(ob);
-        
-        pl("Auto Generated Level 1 Keywords= ");
-        ob.plLvl1Keywords();
-        p("Do you want to add more keywords?");
+
+        p("Do you want to add more keywords? (y/n)");
         if(checkYN()==0)
-        ob.lvl1customkeywords();
-        
+            ob.addKeywords();
+
         pl("Auto Generated Level 2 Keywords= ");
-        ob.plLvl2Keywords();
+
         pl("Do you want to edit anything in this formula ? ");
         if(checkYN()==0)
-        edit(ob);
+            edit(ob);
         database.add(ob);  
 
-        store(ob); // stores in file database.txt
-        
-   }
+        store(ob);
+    }
 
-    
 
-    void search(String searchWord)
+    void search_Ex(String searchWord)
     {
-        // keywords sin , cos , sin2x , cos2x 
+        for(int i=0;i<database.size();i++)
+        {
+            if(database.get(i).expression.contains(searchWord))
+            {
+                pl(database.get(i).expression);            
+            }
+        }
+    }
+
+    void search_Key(String searchWord)
+    {
+        for(int i=0;i<database.size();i++)
+        {
+            for(int j=0;j<database.get(i).key.size();j++)
+            {
+                if( database.get(i).key.get(j).contains(searchWord))
+                {
+                    System.out.println();
+                }
+            }
+        }
     }
 
     void list()
-    {//id exp type cate
+    {
         for(int i=0;i<database.size();i++)
         {
             pl("\n\nID= "+database.get(i).id);
             pl("Expression= "+database.get(i).expression);
             pl("Type= "+database.get(i).type);
             pl("Category= \n\n"+database.get(i).category);
-             
+
         }
     }
 
-    void list(String type)
+    void list(int type)
     {
-        
-    }
+        String cat;
+        switch(type)
+        {
+            case 1: cat="type"; break;
+            case 2: cat="category"; break;
 
-    void edit()
-    {
-         // edit anything except id
+            default : cat=""; break;
+        }
+        pl("Enter "+cat);
+        {
+            String s=in.nextLine();
+
+        }
+
     }
 
     void edit(Formula ob)
     {
-        // edit specific object
+        //code here
     }
 
-    private void generatelvl1Keywords(Formula ob)
-    {
-        String terms[]=ob.expression.split("[+\\-=*/()^]");
-        for(String s:terms)
-        {
-            if(isNumeric(s) || s.length()<2 || s.equals("") || s.equals("x")  || s.equals("y") || s.equals("z"))
-            {
-                continue;
-            }
-            else if( s.length()>=2)                
-            {
-              for(String s1:trigList1)
-              {
-                  if(s.contains(s1))
-                  {
-                    ob.lvl1Keywords.add(s);
-                    break ; 
-                  }
-              }
-            }
-            else
-            {
-                continue;
-            }
-        }
-    }
-    private void generatelvl2Keywords(Formula ob)
+    void edit()
     {
         //code here
     }
 
     void store(Formula ob)
     {
-        // stores current formula and updates INDEX and LAST_ID at top of file
+        //code here
     }
+
 }
-
-
 public class Main 
 {
     public static void main(String[] args) 
@@ -175,15 +174,14 @@ public class Main
             int choice = in.nextInt();
             in.nextLine(); 
 
-            
             if (choice == 3) {
                 db.list(); 
             } else if (choice == 5) {
                 break; 
             }
-            
+
         }
         in.close();
-    }//hi aviral can u read it , yes i can read it 
- 
-} //
+    }
+
+}
