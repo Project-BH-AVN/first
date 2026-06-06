@@ -1,4 +1,5 @@
 package live;
+
 import java.io.*;
 import java.util.*;
 import static utils.Base.*;
@@ -11,12 +12,12 @@ class Formula {
     String category;
     ArrayList<String> key;
 
-    Formula(int id, String ex, String type, String category) {
+    Formula(int id, String ex, String type, String category, ArrayList<String> s) {
         this.id = id;
         this.expression = ex;
         this.type = type;
         this.category = category;
-        key = new ArrayList<>();
+        key = s;
 
     }
 
@@ -65,39 +66,51 @@ class Formula {
 class Database {
     Scanner in = new Scanner(System.in);
     ArrayList<Formula> database = new ArrayList<>();
+    int lastIndex = 0;
 
-
-    // @working 
-    
-    void load()
-    {
-        if((new File("Formula_database")).exists())
-        {
-            try(BufferedReader br = new BufferedReader(new FileReader("Formula_database.txt")))
-            {
+    void load() {
+        if ((new File("Formula_database.txt")).exists()) {
+            try (BufferedReader br = new BufferedReader(new FileReader("Formula_database.txt"))) {
                 String line;
-                
-                while((line=br.readLine())!=null)
-                {
-                    int id; 
-                    String expression , type, category ; 
-                    ArrayList<String> keywords=new ArrayList<>();
-                    String temp1[]=line.split("\\|");
-                    for(int i=0;i<temp1.length;i++)
-                    {
-                        String temp2[]=temp1[i].split(":");
-                          
-                    }
+                String firstLine = br.readLine();
+                if (firstLine != null) {
+                    lastIndex = Integer.parseInt(firstLine.substring(firstLine.indexOf(":") + 1));
                 }
-            }
-            catch(IOException e)
-            {
+                while ((line = br.readLine()) != null) {
+                    int id;
+                    String expression, type, category;
+                    ArrayList<String> keywords = new ArrayList<>();
+                    String temp1[] = line.split("\\|");
+                    // ID:1|EXPRESSION:a+b|TYPE:type|CATEGORY:category|KEYWORDS:{A,B,C}
 
+                    id = Integer.parseInt(temp1[0].substring(temp1[0].indexOf(":") + 1));
+                    expression = temp1[1].substring(temp1[1].indexOf(":") + 1);
+                    type = temp1[2].substring(temp1[2].indexOf(":") + 1);
+                    category = temp1[3].substring(temp1[3].indexOf(":") + 1);
+                    ArrayList<String> list = new ArrayList<>(Arrays
+                            .asList((temp1[4].substring(temp1[4].indexOf("{") + 1, temp1[4].indexOf("}"))).split(",")));
+                    Formula ob = new Formula(id, expression, type, category, list);
+                    database.add(ob);
+
+                }
+            } catch (IOException e) {
+                System.out.println("Error loading file , please contact administrator!\nExiting Program..");
+                System.exit(0);
+            }
+        } else {
+            try (PrintWriter pw = new PrintWriter(new FileWriter("Formula_database.txt"), true);) {
+                String default_Formula = "ID:1|EXPRESSION:sin^2x+cos^2x=1|TYPE:identity|CATEGORY:pythagorean identity|KEYWORDS:{sin^2,cos^2,1}";
+                pw.println("LASTINDEX:1");
+                pw.println(default_Formula);
+                lastIndex = 1;
+                ArrayList<String> temp = new ArrayList<>(List.of("sin^2", "cos^2", "1"));
+                database.add(new Formula(1, "sin^2x+cos^2x=1", "identity", "pythagorean identity", temp));
+            } catch (IOException e) {
+                System.out.println("Error loading file , please contact administrator!\nExiting Program");
+                System.exit(0);
             }
         }
     }
-
-    int lastIndex = database.size() - 1;
 
     void add() {
         pl("Enter Expression:");
@@ -106,11 +119,12 @@ class Database {
         String ty = in.nextLine().replace(" ", "").toLowerCase();
         pl("Enter category:");
         String ca = in.nextLine().replace(" ", "").toLowerCase();
-        Formula ob = new Formula(lastIndex + 1, ex, ty, ca);
-        lastIndex++;
 
-        p("Do you want to add more keywords? (y/n)");
+        ArrayList<String> keywords = new ArrayList<>();
+        Formula ob = new Formula(lastIndex + 1, ex, ty, ca, keywords);
+        p("Do you want to add keywords? (y/n)");
         if (checkYN() == 0)
+
             ob.addKeywords();
 
         pl("Do you want to edit anything in this formula ? ");
@@ -118,32 +132,32 @@ class Database {
             edit(ob);
         database.add(ob);
 
-        store(ob);
     }
 
     void search_Ex(String searchWord) {
-        int count =0;
+        int count = 0;
         pl("Search Results");
         for (int i = 0; i < database.size(); i++) {
             if (database.get(i).expression.contains(searchWord)) {
                 pl(database.get(i).expression);
             }
         }
-        if(count==0)
+        if (count == 0)
             pl("None !");
     }
 
     void search_Key(String searchWord) {
-        int count =0;
+        int count = 0;
         pl("Search Results");
         for (int i = 0; i < database.size(); i++) {
             for (int j = 0; j < database.get(i).key.size(); j++) {
                 if (database.get(i).key.get(j).contains(searchWord)) {
-                    database.get(i).info(); count ++;
+                    database.get(i).info();
+                    count++;
                 }
             }
         }
-        if(count==0)
+        if (count == 0)
             pl("None !");
     }
 
@@ -198,15 +212,35 @@ class Database {
      * 
      */
 
-    void edit(Formula ob) 
-    {
+    void edit(Formula ob) {
         // code here
     }
 
-   
-
-    void store(Formula ob) {
+    void save() {
         // code here
+        try (PrintWriter pw = new PrintWriter(new FileWriter("Formula_database.txt"));) {
+
+            pw.println("LASTINDEX:" + lastIndex);
+            String type, category, expression;
+            int id;
+            String keywords;
+
+            for (int i = 0; i < database.size(); i++) {
+                Formula ob = database.get(i);
+                id = ob.id;
+                type = ob.type;
+                category = ob.category;
+                expression = ob.expression;
+                keywords = ob.key.toString().replace("[", "").replace("]", "");
+                pw.println("ID:" + id + "|EXPRESSION:" + expression + "|TYPE:" + type + "|CATEGORY:" + category
+                        + "|KEYWORDS:{" + keywords + "}");
+
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error saving the formulas , contact administrator!\nExiting Program..");
+            System.exit(0);
+        }
     }
 
 }
