@@ -227,12 +227,12 @@ class Database {
                             pl("Successful edit!");
                             break;
                         case 2:
-                            System.out.println("Enter New Type");
+                            System.out.println("Enter New Type ");
                             ob.type = scanner.nextLine().replace(" ", "").toLowerCase();
                             pl("Successful edit!");
                             break;
                         case 3:
-                            System.out.println("Enter New Category");
+                            System.out.println("Enter a New Category");
                             ob.category = scanner.nextLine().replace(" ", "").toLowerCase();
                             pl("Successful edit!");
                             break;
