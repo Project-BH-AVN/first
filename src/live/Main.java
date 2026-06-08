@@ -198,14 +198,12 @@ class Database {
         while (true) {
             pl("1-Edit a formula\n2-Delete a formula\n3-Exit Editing Menu");
             int choice = safeNextInt();
-            
 
             if (choice == 1) {
                 list();
                 System.out.println("Enter ID of formula to edit:");
 
                 int editId = safeNextInt();
-                
 
                 Formula ob = null;
 
@@ -219,7 +217,6 @@ class Database {
                 if (ob != null) {
                     pl("What do you want to edit?\n1-Expression\n2-Type\n3-Category\n4-Add Keywords\n5-Back to Editing Menu");
                     int choice1 = safeNextInt();
-                    
 
                     switch (choice1) {
                         case 1:
@@ -255,7 +252,6 @@ class Database {
                 System.out.println("Enter ID of formula to delete (this action cannot be undone!):");
                 list();
                 int deleteId = safeNextInt();
-                
 
                 boolean found = false;
 
@@ -322,8 +318,6 @@ public class Main {
 
             int choice = safeNextInt();
 
-          
-
             switch (choice) {
                 case 1:
                     // 2. ADD FORMULA: Completely handled by Database.add()
@@ -335,7 +329,7 @@ public class Main {
                     // 3. SEARCH: Requires a sub-menu to route to the correct search function.
                     System.out.println("Search by: 1. Expression  2. Keyword");
                     int searchType = safeNextInt();
-                  
+
                     System.out.println("Enter search term:");
                     String term = scanner.nextLine().trim().toLowerCase();
 
